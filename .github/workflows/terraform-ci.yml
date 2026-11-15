@@ -3,22 +3,29 @@ name: terraform-ci
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
 
 permissions:
   id-token: write
   contents: read
 
+concurrency:
+  group: terraform
+  cancel-in-progress: false
+
+env:
+  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  ARM_USE_OIDC: "true"
+  TF_VAR_my_ip: ${{ secrets.MY_IP }}
+  TF_VAR_ssh_public_key: ${{ vars.SSH_PUBLIC_KEY }}
+  TF_IN_AUTOMATION: "true"
+
 jobs:
   plan:
     runs-on: ubuntu-latest
-    env:
-      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      ARM_USE_OIDC: "true"
-      TF_VAR_my_ip: ${{ secrets.MY_IP }}
-      TF_VAR_ssh_public_key: ${{ vars.SSH_PUBLIC_KEY }}
-      TF_IN_AUTOMATION: "true"
     steps:
       - uses: actions/checkout@v4
 
@@ -44,3 +51,24 @@ jobs:
           echo '```' >> "$GITHUB_STEP_SUMMARY"
           terraform show -no-color tfplan >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+  apply:
+    needs: plan
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Init
+        run: terraform init -input=false
+
+      - name: Plan
+        run: terraform plan -input=false -no-color -out=tfplan
+
+      - name: Apply
+        run: terraform apply -input=false -no-color tfplan
