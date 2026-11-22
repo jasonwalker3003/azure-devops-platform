@@ -21,6 +21,7 @@ env:
   ARM_USE_OIDC: "true"
   TF_VAR_my_ip: ${{ secrets.MY_IP }}
   TF_VAR_ssh_public_key: ${{ vars.SSH_PUBLIC_KEY }}
+  TF_VAR_alert_email: ${{ secrets.ALERT_EMAIL }}
   TF_IN_AUTOMATION: "true"
 
 jobs:
