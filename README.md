@@ -9,6 +9,7 @@ An Azure platform I'm building step by step with Terraform and GitHub Actions wh
 - CI on every pull request: `terraform fmt`, `init`, `validate` and `plan`, with the plan shown on the run's summary page
 - GitHub signs in to Azure with OIDC: short-lived tokens, no stored passwords
 - Merging to main runs a plan, then waits for my approval in the `production` environment before `terraform apply`
+- Availability test from 3 locations every 5 minutes, emailing me if 2 or more fail
 
 ## Roadmap
 
@@ -18,7 +19,8 @@ An Azure platform I'm building step by step with Terraform and GitHub Actions wh
 - [x] OIDC sign-in from GitHub and `terraform plan` on PRs
 - [x] `terraform apply` on merge to main
 - [x] Web server with cloud-init
-- [ ] Monitoring and alerts
+- [x] Website availability test with email alert
+- [ ] VM logs and metrics with Azure Monitor Agent and KQL
 
 ## Run it locally
 
