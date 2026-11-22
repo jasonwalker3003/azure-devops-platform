@@ -16,7 +16,11 @@ terraform {
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    application_insights {
+      disable_generated_rule = true
+    }
+  }
 }
 
 variable "my_ip" {
