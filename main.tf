@@ -76,6 +76,18 @@ resource "azurerm_network_security_group" "nsg" {
     source_address_prefix      = "${var.my_ip}/32"
     destination_address_prefix = "*"
   }
+
+  security_rule {
+    name                       = "allow-http"
+    priority                   = 110
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "Internet"
+    destination_address_prefix = "*"
+  }
 }
 
 resource "azurerm_network_interface" "nic" {
@@ -103,6 +115,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   size                  = "Standard_B1s"
   admin_username        = "azureuser"
   network_interface_ids = [azurerm_network_interface.nic.id]
+  custom_data           = base64encode(file("${path.module}/cloud-init.yaml"))
 
   admin_ssh_key {
     username   = "azureuser"
@@ -124,4 +137,8 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
 output "ssh_command" {
   value = "ssh azureuser@${azurerm_public_ip.pip.ip_address}"
+}
+
+output "web_url" {
+  value = "http://${azurerm_public_ip.pip.ip_address}"
 }

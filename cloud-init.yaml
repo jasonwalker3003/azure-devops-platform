@@ -1,0 +1,20 @@
+#cloud-config
+package_update: true
+packages:
+  - nginx
+
+write_files:
+  - path: /var/www/html/index.html
+    content: |
+      <!DOCTYPE html>
+      <html>
+      <head><title>azure-devops-platform</title></head>
+      <body style="font-family: sans-serif; max-width: 640px; margin: 60px auto;">
+        <h1>azure-devops-platform</h1>
+        <p>This page was deployed by Terraform through GitHub Actions,
+        and nginx was installed on first boot by cloud-init.</p>
+      </body>
+      </html>
+
+runcmd:
+  - systemctl enable --now nginx
