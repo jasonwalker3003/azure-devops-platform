@@ -4,7 +4,7 @@ An Azure platform I'm building step by step with Terraform and GitHub Actions wh
 
 ## Current state
 
-- One Ubuntu VM in UK South, with SSH allowed only from my IP
+- One Ubuntu VM in UK South running nginx (installed by cloud-init), with SSH allowed only from my IP and HTTP open to the internet
 - Terraform state stored in Azure Storage (Entra ID auth, no shared keys)
 - CI on every pull request: `terraform fmt`, `init`, `validate` and `plan`, with the plan shown on the run's summary page
 - GitHub signs in to Azure with OIDC: short-lived tokens, no stored passwords
@@ -17,7 +17,7 @@ An Azure platform I'm building step by step with Terraform and GitHub Actions wh
 - [x] Remote state in Azure Storage
 - [x] OIDC sign-in from GitHub and `terraform plan` on PRs
 - [x] `terraform apply` on merge to main
-- [ ] Web server with cloud-init
+- [x] Web server with cloud-init
 - [ ] Monitoring and alerts
 
 ## Run it locally

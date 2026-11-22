@@ -29,13 +29,17 @@ variable "ssh_public_key" {
   type        = string
 }
 
+locals {
+  prefix = "devops-platform"
+}
+
 resource "azurerm_resource_group" "rg" {
-  name     = "rg-first-vm"
+  name     = "rg-${local.prefix}"
   location = "uksouth"
 }
 
 resource "azurerm_virtual_network" "vnet" {
-  name                = "vnet-first-vm"
+  name                = "vnet-${local.prefix}"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
@@ -49,7 +53,7 @@ resource "azurerm_subnet" "subnet" {
 }
 
 resource "azurerm_public_ip" "pip" {
-  name                = "pip-first-vm"
+  name                = "pip-${local.prefix}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Static"
@@ -57,7 +61,7 @@ resource "azurerm_public_ip" "pip" {
 }
 
 resource "azurerm_network_security_group" "nsg" {
-  name                = "nsg-first-vm"
+  name                = "nsg-${local.prefix}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
@@ -72,10 +76,22 @@ resource "azurerm_network_security_group" "nsg" {
     source_address_prefix      = "${var.my_ip}/32"
     destination_address_prefix = "*"
   }
+
+  security_rule {
+    name                       = "allow-http"
+    priority                   = 110
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "Internet"
+    destination_address_prefix = "*"
+  }
 }
 
 resource "azurerm_network_interface" "nic" {
-  name                = "nic-first-vm"
+  name                = "nic-${local.prefix}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
@@ -93,12 +109,13 @@ resource "azurerm_network_interface_security_group_association" "nic_nsg" {
 }
 
 resource "azurerm_linux_virtual_machine" "vm" {
-  name                  = "vm-first"
+  name                  = "vm-${local.prefix}"
   location              = azurerm_resource_group.rg.location
   resource_group_name   = azurerm_resource_group.rg.name
   size                  = "Standard_B1s"
   admin_username        = "azureuser"
   network_interface_ids = [azurerm_network_interface.nic.id]
+  custom_data           = base64encode(file("${path.module}/cloud-init.yaml"))
 
   admin_ssh_key {
     username   = "azureuser"
@@ -120,4 +137,8 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
 output "ssh_command" {
   value = "ssh azureuser@${azurerm_public_ip.pip.ip_address}"
+}
+
+output "web_url" {
+  value = "http://${azurerm_public_ip.pip.ip_address}"
 }
