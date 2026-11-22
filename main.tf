@@ -29,13 +29,17 @@ variable "ssh_public_key" {
   type        = string
 }
 
+locals {
+  prefix = "devops-platform"
+}
+
 resource "azurerm_resource_group" "rg" {
-  name     = "rg-first-vm"
+  name     = "rg-${local.prefix}"
   location = "uksouth"
 }
 
 resource "azurerm_virtual_network" "vnet" {
-  name                = "vnet-first-vm"
+  name                = "vnet-${local.prefix}"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
@@ -49,7 +53,7 @@ resource "azurerm_subnet" "subnet" {
 }
 
 resource "azurerm_public_ip" "pip" {
-  name                = "pip-first-vm"
+  name                = "pip-${local.prefix}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Static"
@@ -57,7 +61,7 @@ resource "azurerm_public_ip" "pip" {
 }
 
 resource "azurerm_network_security_group" "nsg" {
-  name                = "nsg-first-vm"
+  name                = "nsg-${local.prefix}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
@@ -75,7 +79,7 @@ resource "azurerm_network_security_group" "nsg" {
 }
 
 resource "azurerm_network_interface" "nic" {
-  name                = "nic-first-vm"
+  name                = "nic-${local.prefix}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
@@ -93,7 +97,7 @@ resource "azurerm_network_interface_security_group_association" "nic_nsg" {
 }
 
 resource "azurerm_linux_virtual_machine" "vm" {
-  name                  = "vm-first"
+  name                  = "vm-${local.prefix}"
   location              = azurerm_resource_group.rg.location
   resource_group_name   = azurerm_resource_group.rg.name
   size                  = "Standard_B1s"
