@@ -10,6 +10,7 @@ An Azure platform I'm building step by step with Terraform and GitHub Actions wh
 - GitHub signs in to Azure with OIDC: short-lived tokens, no stored passwords
 - Merging to main runs a plan, then waits for my approval in the `production` environment before `terraform apply`
 - Availability test from 3 locations every 5 minutes, emailing me if 2 or more fail
+- Azure Monitor Agent sends syslog and CPU, memory and disk metrics to Log Analytics, queried with KQL
 
 ## Roadmap
 
@@ -20,7 +21,7 @@ An Azure platform I'm building step by step with Terraform and GitHub Actions wh
 - [x] `terraform apply` on merge to main
 - [x] Web server with cloud-init
 - [x] Website availability test with email alert
-- [ ] VM logs and metrics with Azure Monitor Agent and KQL
+- [x] VM logs and metrics with Azure Monitor Agent and KQL
 
 ## Run it locally
 

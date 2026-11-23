@@ -117,6 +117,10 @@ resource "azurerm_linux_virtual_machine" "vm" {
   network_interface_ids = [azurerm_network_interface.nic.id]
   custom_data           = base64encode(file("${path.module}/cloud-init.yaml"))
 
+  identity {
+    type = "SystemAssigned"
+  }
+
   admin_ssh_key {
     username   = "azureuser"
     public_key = var.ssh_public_key
